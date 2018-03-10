@@ -18,14 +18,21 @@ class Tomograph:
         self.alpha = alpha_
         self.detector_amount = detector_amount_
 
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(self.orginal_image, cmap='gray')
+        plt.savefig("out/orginal.png")
+
     def work(self):
         self.sinogram, self.lines = MyAlg.make_sinogram(self.orginal_image,
                 width=self.width, alpha=self.alpha, detector_amount=self.detector_amount)
-        fig, plots = plt.subplots(1,2)
-        plots[0].imshow(self.orginal_image, cmap='gray')
-        plots[1].imshow(self.sinogram, cmap='gray')
-        plt.savefig("sinogram.png")
-        return self.sinogram
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(self.sinogram, cmap='gray')
+        plt.savefig("out/sinogram.png")
+
+        #self.reconst_image = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
+        #fig, plots = plt.subplots(1,1)
+        #plots.imshow(self.reconst_image, cmap='gray')
+        #plt.savefig("out/sinogram.png")
 
 def main(width, alpha, detector_amount):
     image = np.zeros([200, 200])
