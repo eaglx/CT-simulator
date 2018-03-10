@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from skimage.color import rgb2gray
 from skimage import io
 from skimage.transform import rescale
+import sys
 
 class Tomograph:
     orginal_image = []
@@ -41,4 +42,4 @@ def main(width, alpha, detector_amount):
     ct.work()
 
 if __name__ == "__main__":
-    main(90, 2, 180);
+    main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])) #(90, 2, 180)
