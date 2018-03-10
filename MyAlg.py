@@ -1,3 +1,5 @@
+import numpy as np
+
 class Pixel:
     def __init__(self):
         self.count = int(0)
@@ -10,11 +12,13 @@ def make_sinogram(image, **kwargs):
         'alpha': 2,
         'detector_amount': 360
     }
+
     settings.update(kwargs)
+
     width = settings['width']
     alpha = settings['alpha']
     detector_amount = settings['detector_amount']
-    picture_size = len(picture[0])
+    picture_size = len(image[0])
     r = int(np.ceil(np.sqrt(picture_size * picture_size)))
 
     sinogram = []
@@ -43,7 +47,7 @@ def get_normalised_pixel(image, line):
     pixel = Pixel()
     for pos in line:
         if pos[0]>=0 and pos[1]>=0 and pos[0]<len(image) and pos[1]<len(image):
-            pixel.value += float(picture[int(pos[0]), int(pos[1])])
+            pixel.value += float(image[int(pos[0]), int(pos[1])])
             pixel.count += 1
     assert pixel.count != 0
     pixel.average = pixel.value / pixel.count
