@@ -118,9 +118,28 @@ def make_sinogram(image, **kwargs):
     return sinogram, lines
 
 def reconstruct_img(image, sinogram, lines):
-    img_shape = np.shape(image)
-    width - img_shape[0]
-    height = img_shape[1]
+    # wymiary zdjęcia końcowego
+    picture_shape = np.shape(image)
+    width = picture_shape[0]
+    height = picture_shape[1]
+    # dane o projekcjach i detektorach
     sinogram_shape = np.shape(sinogram)
     number_of_projections = sinogram_shape[0]
-    number_of_detector = sinogram_shape[1]
+    number_of_detectors = sinogram_shape[1]
+    # dane do rekonstrukcji zdjęcia
+    reconstructed = np.zeros(shape = picture_shape)
+    helper = np.zeros(shape = picture_shape)
+
+    # rekonstrukcja zdjęcia
+    for projection in range (0, number_of_projections, 1):
+        for detector in range (0, number_of_detectors, 1):
+            x1, y1, x2, y2 = lines[projection][detector]
+            line = bresenham_line(x1, y1, x2, y2)
+            value = sinogram[projection][detector]
+            for i in range (0, len(line), 1):
+                    x, y = line[i]
+                    if x >= 0 and y >= 0 and x < width and y < height:
+                        reconstructed[int(x)][int(y)] += value
+                        helper[int(x)][int(y)] += 1
+
+    return reconstructed

@@ -29,10 +29,10 @@ class Tomograph:
         plots.imshow(self.sinogram, cmap='gray')
         plt.savefig("out/sinogram.png")
 
-        #self.reconst_image = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
-        #fig, plots = plt.subplots(1,1)
-        #plots.imshow(self.reconst_image, cmap='gray')
-        #plt.savefig("out/sinogram.png")
+        self.reconst_image = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(self.reconst_image, cmap='gray')
+        plt.savefig("out/reconst_image.png")
 
 def main(width, alpha, detector_amount):
     image = np.zeros([200, 200])
