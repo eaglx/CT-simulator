@@ -3,6 +3,7 @@ from skimage.exposure import rescale_intensity
 import skimage.morphology as mp
 from skimage import filters
 
+# https://pl.wikipedia.org/wiki/Algorytm_Bresenhama
 # x1 , y1 - współrzędne początku odcinka
 # x2 , y2 - współrzędne końca odcinka
 def bresenham_line(x1, y1, x2, y2):
@@ -121,15 +122,16 @@ def make_sinogram(image, **kwargs):
     return sinogram, lines
 
 def filtering_picture(img) :
-    new = filters.gaussian(img, sigma=1)
-    new = mp.dilation(mp.erosion(new))
-    return new
+    new_img = filters.gaussian(img, sigma=1)
+    new_img = mp.dilation(mp.erosion(new_img))
+    return new_img
 
 def normalizing_picture(reconstructed, helper):
     normalized = np.copy(reconstructed)
     picture_shape = np.shape(normalized)
     width = picture_shape[0]
     height = picture_shape[1]
+
     for i in range (0, width, 1):
         for j in range (0, height, 1):
             if helper[i][j] != 0:
