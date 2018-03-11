@@ -1,4 +1,7 @@
 import numpy as np
+from skimage.exposure import rescale_intensity
+import skimage.morphology as mp
+from skimage import filters
 
 # x1 , y1 - współrzędne początku odcinka
 # x2 , y2 - współrzędne końca odcinka
@@ -117,6 +120,22 @@ def make_sinogram(image, **kwargs):
             lines[-1].append([x1, y1, x2, y2])
     return sinogram, lines
 
+def filtering_picture(img) :
+    new = filters.gaussian(img, sigma=1)
+    new = mp.dilation(mp.erosion(new))
+    return new
+
+def normalizing_picture(reconstructed, helper):
+    normalized = np.copy(reconstructed)
+    picture_shape = np.shape(normalized)
+    width = picture_shape[0]
+    height = picture_shape[1]
+    for i in range (0, width, 1):
+        for j in range (0, height, 1):
+            if helper[i][j] != 0:
+                normalized[i][j] = normalized[i][j]/helper[i][j]
+    return normalized
+
 def reconstruct_img(image, sinogram, lines):
     # wymiary zdjęcia końcowego
     picture_shape = np.shape(image)
@@ -141,5 +160,10 @@ def reconstruct_img(image, sinogram, lines):
                     if x >= 0 and y >= 0 and x < width and y < height:
                         reconstructed[int(x)][int(y)] += value
                         helper[int(x)][int(y)] += 1
+
+    fragment = normalizing_picture(reconstructed, helper)
+    fragment[fragment[:,:] < 0] = 0
+    fragment = rescale_intensity(fragment)
+    reconstructed = filtering_picture(fragment)
 
     return reconstructed

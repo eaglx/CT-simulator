@@ -1,5 +1,6 @@
 import MyAlg
 
+from PyQt4 import QtGui, QtCore
 import numpy as np
 import matplotlib.pyplot as plt
 from skimage.color import rgb2gray
@@ -41,5 +42,20 @@ def main(width, alpha, detector_amount):
     ct = Tomograph(image, width, alpha, detector_amount)
     ct.work()
 
+class Window(QtGui.QMainWindow):
+    def __init__(self):
+        super(Window, self).__init__()
+        self.setGeometry(150, 150, 700, 600)
+        self.setWindowTitle("CTsim")
+        self.fixSizeString = False
+        self.__home__()
+
+    def __home__(self):
+        self.show()
+
+
 if __name__ == "__main__":
-    main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])) #(90, 2, 180)
+    #main(90, 2, 180)
+    app = QtGui.QApplication(sys.argv)
+    GUI = Window()
+    sys.exit(app.exec_())
