@@ -79,8 +79,6 @@ def get_normalised_pixel(image, line):
         if pos[0]>=0 and pos[1]>=0 and pos[0]<len(image) and pos[1]<len(image):
             pixel.value += float(image[int(pos[0]), int(pos[1])])
             pixel.count += 1
-    if not pixel.count != 0:
-        raise AssertionError()
     pixel.average = pixel.value / pixel.count
     return pixel
 
@@ -88,7 +86,7 @@ def make_sinogram(image, **kwargs):
     settings = {
         'width': 90,
         'alpha': 2,
-        'detector_amount': 360
+        'detector_amount': 180
     }
 
     settings.update(kwargs)
