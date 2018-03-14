@@ -105,9 +105,9 @@ def make_sinogram(image, **kwargs):
         lines.append([])
         for detector in range(0, detector_amount):
             x1 = r * np.cos(i * np.pi / 180)
-            y1 = r * np.sin(i * np.pi / 180)
-            x2 = r * np.cos((i + 180 - (width / 2) + detector * (width / (detector_amount - 1))) * np.pi / 180)
-            y2 = r * np.sin((i + 180 - (width / 2) + detector * (width / (detector_amount - 1))) * np.pi / 180)
+            y1 = r * np.sin(i * np.pi / 180)                                    #ilosc detektorów
+            x2 = r * np.cos((i + 180 - (width / 2) + detector * (width / (detector_amount))) * np.pi / 180)
+            y2 = r * np.sin((i + 180 - (width / 2) + detector * (width / (detector_amount))) * np.pi / 180)
             x1 = int(x1) + np.floor(picture_size / 2)
             y1 = int(y1) + np.floor(picture_size / 2)
             x2 = int(x2) + np.floor(picture_size / 2)
