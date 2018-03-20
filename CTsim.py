@@ -7,6 +7,7 @@ from skimage.color import rgb2gray
 from skimage import io
 from skimage.transform import rescale
 import os, sys
+import imageio
 
 class Tomograph:
     orginal_image = []
@@ -27,14 +28,23 @@ class Tomograph:
     def work(self):
         self.sinogram, self.lines = MyAlg.make_sinogram(self.orginal_image,
                 width=self.width, alpha=self.alpha, detector_amount=self.detector_amount)
-        fig, plots = plt.subplots(1,1)
-        plots.imshow(self.sinogram, cmap='gray')
-        plt.savefig("out/sinogram.png")
+        #fig, plots = plt.subplots(1,1)
+        #plots.imshow(self.sinogram, cmap='gray')
+        #plt.savefig("out/sinogram.png")
+        images = []
+        for filename in os.listdir("out_sin/"):
+            images.append(imageio.imread("out_sin/" + filename))
+        imageio.mimsave("out/sinogram.gif", images)
+
 
         self.reconst_image = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
-        fig, plots = plt.subplots(1,1)
-        plots.imshow(self.reconst_image, cmap='gray')
-        plt.savefig("out/reconst_image.png")
+        #fig, plots = plt.subplots(1,1)
+        #plots.imshow(self.reconst_image, cmap='gray')
+        #plt.savefig("out/reconst_image.png")
+        images = []
+        for filename in os.listdir("out_recv/"):
+            images.append(imageio.imread("out_recv/" + filename))
+        imageio.mimsave("out/reconst_image.gif", images)
 
 def main_tomograph(width, alpha, detector_amount):
     image = np.zeros([200, 200])
@@ -77,7 +87,7 @@ class Window(QtGui.QMainWindow):
 
         self.pic2 = QtGui.QLabel(self)
         self.pic2.setGeometry(430, 160, 400, 400)
-        self.pixmap2 = QtGui.QPixmap("out/sinogram.png")
+        self.pixmap2 = QtGui.QPixmap("out/sinogram.gif")
         self.pixmap2 = self.pixmap2.scaledToHeight(400)
         self.pixmap2 = self.pixmap2.scaledToWidth(400)
         self.pic2.setPixmap(self.pixmap2)
@@ -90,7 +100,7 @@ class Window(QtGui.QMainWindow):
 
         self.pic3 = QtGui.QLabel(self)
         self.pic3.setGeometry(840, 160, 400, 400)
-        self.pixmap3 = QtGui.QPixmap("out/reconst_image.png")
+        self.pixmap3 = QtGui.QPixmap("out/reconst_image.gif")
         self.pixmap3 = self.pixmap3.scaledToHeight(400)
         self.pixmap3 = self.pixmap3.scaledToWidth(400)
         self.pic3.setPixmap(self.pixmap3)

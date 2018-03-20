@@ -2,6 +2,7 @@ import numpy as np
 from skimage.exposure import rescale_intensity
 import skimage.morphology as mp
 from skimage import filters
+import matplotlib.pyplot as plt
 
 # https://pl.wikipedia.org/wiki/Algorytm_Bresenhama
 # x1 , y1 - współrzędne początku odcinka
@@ -100,6 +101,8 @@ def make_sinogram(image, **kwargs):
     sinogram = []
     lines = []
 
+    snapschot = 0;
+
     for i in range(0, 360, alpha):
         sinogram.append([])
         lines.append([])
@@ -117,6 +120,12 @@ def make_sinogram(image, **kwargs):
             pixel = get_normalised_pixel(image, line)
             sinogram[-1].append(pixel.average)
             lines[-1].append([x1, y1, x2, y2])
+
+        snapschot+=1
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(sinogram, cmap='gray')
+        plt.savefig("out_sin/snapschot_sinogram_" + str(snapschot) + ".png")
+
     return sinogram, lines
 
 def filtering_picture(img) :
@@ -149,6 +158,8 @@ def reconstruct_img(image, sinogram, lines):
     reconstructed = np.zeros(shape = picture_shape)
     helper = np.zeros(shape = picture_shape)
 
+    snapschot = 0;
+
     # rekonstrukcja zdjęcia
     for projection in range (0, number_of_projections, 1):
         for detector in range (0, number_of_detectors, 1):
@@ -160,6 +171,16 @@ def reconstruct_img(image, sinogram, lines):
                     if x >= 0 and y >= 0 and x < width and y < height:
                         reconstructed[int(x)][int(y)] += value
                         helper[int(x)][int(y)] += 1
+
+        fragment = normalizing_picture(reconstructed, helper)
+        fragment[fragment[:,:] < 0] = 0
+        fragment = rescale_intensity(fragment)
+        reconstructed2 = filtering_picture(fragment)
+
+        snapschot+=1
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(reconstructed2, cmap='gray')
+        plt.savefig("out_recv/snapschot_reconstructed_" + str(snapschot) + ".png")
 
     fragment = normalizing_picture(reconstructed, helper)
     fragment[fragment[:,:] < 0] = 0
