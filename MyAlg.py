@@ -121,14 +121,14 @@ def make_sinogram(image, **kwargs):
             sinogram[-1].append(pixel.average)
             lines[-1].append([x1, y1, x2, y2])
 
-        snapschot+=1
-        fig, plots = plt.subplots(1,1)
-        plots.imshow(sinogram, cmap='gray')
-        plt.savefig("out_sin/snapschot_sinogram_" + str(snapschot) + ".png")
+        #snapschot+=1
+        #fig, plots = plt.subplots(1,1)
+        #plots.imshow(sinogram, cmap='gray')
+        #plt.savefig("out_sin/snapschot_sinogram_" + str(snapschot) + ".png")
 
     return sinogram, lines
 
-def filtering_picture(img) :
+def filtering_picture(img) : # maska na sinogram convolve, http://www.dspguide.com/ch25/5.htm
     new_img = filters.gaussian(img, sigma=1)
     new_img = mp.dilation(mp.erosion(new_img))
     return new_img
@@ -172,15 +172,15 @@ def reconstruct_img(image, sinogram, lines):
                         reconstructed[int(x)][int(y)] += value
                         helper[int(x)][int(y)] += 1
 
-        fragment = normalizing_picture(reconstructed, helper)
-        fragment[fragment[:,:] < 0] = 0
-        fragment = rescale_intensity(fragment)
-        reconstructed2 = filtering_picture(fragment)
+        #fragment = normalizing_picture(reconstructed, helper)
+        #fragment[fragment[:,:] < 0] = 0
+        #fragment = rescale_intensity(fragment)
+        #reconstructed2 = filtering_picture(fragment)
 
-        snapschot+=1
-        fig, plots = plt.subplots(1,1)
-        plots.imshow(reconstructed2, cmap='gray')
-        plt.savefig("out_recv/snapschot_reconstructed_" + str(snapschot) + ".png")
+        #snapschot+=1
+        #fig, plots = plt.subplots(1,1)
+        #plots.imshow(reconstructed2, cmap='gray')
+        #plt.savefig("out_recv/snapschot_reconstructed_" + str(snapschot) + ".png")
 
     fragment = normalizing_picture(reconstructed, helper)
     fragment[fragment[:,:] < 0] = 0

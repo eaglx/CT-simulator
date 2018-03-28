@@ -7,7 +7,7 @@ from skimage.color import rgb2gray
 from skimage import io
 from skimage.transform import rescale
 import os, sys
-import imageio
+#import imageio
 
 class Tomograph:
     orginal_image = []
@@ -28,23 +28,23 @@ class Tomograph:
     def work(self):
         self.sinogram, self.lines = MyAlg.make_sinogram(self.orginal_image,
                 width=self.width, alpha=self.alpha, detector_amount=self.detector_amount)
-        #fig, plots = plt.subplots(1,1)
-        #plots.imshow(self.sinogram, cmap='gray')
-        #plt.savefig("out/sinogram.png")
-        images = []
-        for filename in os.listdir("out_sin/"):
-            images.append(imageio.imread("out_sin/" + filename))
-        imageio.mimsave("out/sinogram.gif", images)
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(self.sinogram, cmap='gray')
+        plt.savefig("out/sinogram.png")
+        #images = []
+        #for filename in os.listdir("out_sin/"):
+        #    images.append(imageio.imread("out_sin/" + filename))
+        #imageio.mimsave("out/sinogram.gif", images)
 
 
         self.reconst_image = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
-        #fig, plots = plt.subplots(1,1)
-        #plots.imshow(self.reconst_image, cmap='gray')
-        #plt.savefig("out/reconst_image.png")
-        images = []
-        for filename in os.listdir("out_recv/"):
-            images.append(imageio.imread("out_recv/" + filename))
-        imageio.mimsave("out/reconst_image.gif", images)
+        fig, plots = plt.subplots(1,1)
+        plots.imshow(self.reconst_image, cmap='gray')
+        plt.savefig("out/reconst_image.png")
+        #images = []
+        #for filename in os.listdir("out_recv/"):
+        #    images.append(imageio.imread("out_recv/" + filename))
+        #imageio.mimsave("out/reconst_image.gif", images)
 
 def main_tomograph(width, alpha, detector_amount):
     image = np.zeros([200, 200])
