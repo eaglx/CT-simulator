@@ -7,13 +7,20 @@ from skimage.color import rgb2gray
 from skimage import io
 from skimage.transform import rescale
 import os, sys
+import time
+from sklearn.metrics import mean_squared_error
 #import imageio
+
+def mean_squared(picture, reconstructed, reconstructed_nofilterd):
+    print("Mean squared error with filtering: ", mean_squared_error(picture, reconstructed))
+    print("Mean squared error without filtering: ", mean_squared_error(picture, reconstructed_nofilterd))
 
 class Tomograph:
     orginal_image = []
     sinogram = []
     sin_filtred = []
     reconst_image = []
+    reconstructed_nofilterd = []
 
     def __init__(self, img, width_, alpha_, detector_amount_):
         self.orginal_image = img
@@ -26,25 +33,34 @@ class Tomograph:
         plt.savefig("out/orginal.png")
 
     def work(self):
+        print("Start generate sinogram")
         self.sinogram, self.lines = MyAlg.make_sinogram(self.orginal_image,
                 width=self.width, alpha=self.alpha, detector_amount=self.detector_amount)
+        print("Finish generate sinogram")
         fig, plots = plt.subplots(1,1)
         plots.imshow(self.sinogram, cmap='gray')
         plt.savefig("out/sinogram.png")
+        #time.sleep(5)
         #images = []
         #for filename in os.listdir("out_sin/"):
         #    images.append(imageio.imread("out_sin/" + filename))
         #imageio.mimsave("out/sinogram.gif", images)
 
-
-        self.reconst_image = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
+        print("Start reconstuct image")
+        self.reconst_image, self.reconstructed_nofilterd = MyAlg.reconstruct_img(self.orginal_image, self.sinogram, self.lines)
+        print("Finish reconstuct image")
         fig, plots = plt.subplots(1,1)
         plots.imshow(self.reconst_image, cmap='gray')
         plt.savefig("out/reconst_image.png")
+        #time.sleep(5)
         #images = []
         #for filename in os.listdir("out_recv/"):
         #    images.append(imageio.imread("out_recv/" + filename))
         #imageio.mimsave("out/reconst_image.gif", images)
+
+        print("Start mean squared error")
+        mean_squared(self.orginal_image, self.reconst_image, self.reconstructed_nofilterd)
+        print("Finish mean squared error")
 
 def main_tomograph(width, alpha, detector_amount):
     image = np.zeros([200, 200])
@@ -87,7 +103,7 @@ class Window(QtGui.QMainWindow):
 
         self.pic2 = QtGui.QLabel(self)
         self.pic2.setGeometry(430, 160, 400, 400)
-        self.pixmap2 = QtGui.QPixmap("out/sinogram.gif")
+        self.pixmap2 = QtGui.QPixmap("out/sinogram.png")
         self.pixmap2 = self.pixmap2.scaledToHeight(400)
         self.pixmap2 = self.pixmap2.scaledToWidth(400)
         self.pic2.setPixmap(self.pixmap2)
@@ -100,7 +116,7 @@ class Window(QtGui.QMainWindow):
 
         self.pic3 = QtGui.QLabel(self)
         self.pic3.setGeometry(840, 160, 400, 400)
-        self.pixmap3 = QtGui.QPixmap("out/reconst_image.gif")
+        self.pixmap3 = QtGui.QPixmap("out/reconst_image.png")
         self.pixmap3 = self.pixmap3.scaledToHeight(400)
         self.pixmap3 = self.pixmap3.scaledToWidth(400)
         self.pic3.setPixmap(self.pixmap3)

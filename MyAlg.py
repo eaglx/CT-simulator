@@ -3,6 +3,8 @@ from skimage.exposure import rescale_intensity
 import skimage.morphology as mp
 from skimage import filters
 import matplotlib.pyplot as plt
+from math import floor
+import scipy.signal as sig
 
 # https://pl.wikipedia.org/wiki/Algorytm_Bresenhama
 # x1 , y1 - współrzędne początku odcinka
@@ -128,10 +130,31 @@ def make_sinogram(image, **kwargs):
 
     return sinogram, lines
 
-def filtering_picture(img) : # maska na sinogram convolve, http://www.dspguide.com/ch25/5.htm
+def filtering_picture(img) :
     new_img = filters.gaussian(img, sigma=1)
     new_img = mp.dilation(mp.erosion(new_img))
     return new_img
+
+def make_mask(detectors):
+    mask_size = floor(detectors/2)
+    mask = np.zeros(mask_size)
+    center = floor(mask_size/2)
+    for i in range(0, mask_size, 1):
+        k = i - center
+        if k % 2 != 0:
+            mask[i] = (-4/np.pi**2)/k**2
+    mask[center] = 1
+    return mask
+
+def filtering_sinogram(sinogram): # maska na sinogram convolve, http://www.dspguide.com/ch25/5.htm
+    sinogram_shape = np.shape(sinogram)
+    number_of_projections = sinogram_shape[0]
+    number_of_detectors = sinogram_shape[1]
+    filtered = np.zeros((number_of_projections, number_of_detectors))
+    mask = make_mask(number_of_detectors)
+    for projection in range (0, number_of_projections, 1):
+        filtered[projection] = sig.convolve(sinogram[projection], mask, mode = 'same', method='direct')
+    return filtered
 
 def normalizing_picture(reconstructed, helper):
     normalized = np.copy(reconstructed)
@@ -145,18 +168,21 @@ def normalizing_picture(reconstructed, helper):
                 normalized[i][j] = normalized[i][j]/helper[i][j]
     return normalized
 
-def reconstruct_img(image, sinogram, lines):
+def reconstruct_img(image, sinogram_org, lines):
     # wymiary zdjęcia końcowego
     picture_shape = np.shape(image)
     width = picture_shape[0]
     height = picture_shape[1]
     # dane o projekcjach i detektorach
-    sinogram_shape = np.shape(sinogram)
+    sinogram_shape = np.shape(sinogram_org)
     number_of_projections = sinogram_shape[0]
     number_of_detectors = sinogram_shape[1]
     # dane do rekonstrukcji zdjęcia
     reconstructed = np.zeros(shape = picture_shape)
+    reconstructed_nofilterd = np.zeros(shape = picture_shape)
     helper = np.zeros(shape = picture_shape)
+
+    sinogram = filtering_sinogram(sinogram_org)
 
     snapschot = 0;
 
@@ -166,9 +192,11 @@ def reconstruct_img(image, sinogram, lines):
             x1, y1, x2, y2 = lines[projection][detector]
             line = bresenham_line(x1, y1, x2, y2)
             value = sinogram[projection][detector]
+            value_nof = sinogram_org[projection][detector]
             for i in range (0, len(line), 1):
                     x, y = line[i]
                     if x >= 0 and y >= 0 and x < width and y < height:
+                        reconstructed_nofilterd[int(x)][int(y)] += value_nof
                         reconstructed[int(x)][int(y)] += value
                         helper[int(x)][int(y)] += 1
 
@@ -187,4 +215,9 @@ def reconstruct_img(image, sinogram, lines):
     fragment = rescale_intensity(fragment)
     reconstructed = filtering_picture(fragment)
 
-    return reconstructed
+    fragment = normalizing_picture(reconstructed_nofilterd, helper)
+    fragment[fragment[:,:] < 0] = 0
+    fragment = rescale_intensity(fragment)
+    reconstructed_nofilterd = filtering_picture(fragment)
+
+    return reconstructed, reconstructed_nofilterd
